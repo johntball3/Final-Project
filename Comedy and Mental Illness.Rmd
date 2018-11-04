@@ -5,41 +5,89 @@ date: "October 19, 2018"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE, warning = FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
-cmi <- read_csv("new version 1.csv")
+cmi <- read_csv("cmi.csv")
 ```
 
 ```{r}
-# cmi is a data set which administered several mental health questionnaires to
-# performers in the comedy industry. The psychological questionnaires included
-# in the survey are the: Mini-IPIP (Big Five Personality Measure), the Hypomanic
-# Personality Scale - Short Form, CES-D (validated measure of depression), the
-# O-LIFE (measure of schizotypal personality traits), and the AUDIT (a valid
-# alcoholism measure). With comedic performers such as Robin Williams, Richard
-# Pryor, and Sarah Silverman, it is an anecdotally accepted fact that comedy and
-# mental illness often go hand-in-hand, and this data set will allow us to
-# assess whether this anecdotal stereotype of the "sad clown" comedian is
-# actually the case (within this sample population of 142 comedians).
+
+#cmi %>%
+#  summary()
 ```
 
-```{r}
-# To begin with, if we run a summary on the dataset, we can see that the mean
-# score among comedians in the CES-D depression metric is 21.5, and the median
-# is 21.0. For context, to screen positive for depression on this survey, one
-# must score above 20. This means that the majority of comedians in the survey
-# screened positive for depression. In contrast, in the control population, only
-# 17% of individuals  screen positive for depression. 
-
-# A large objective of this project would be to assess what other lifestyle
-# questions correlate with depression and addiction among comedians. For
-# instance, whether it is the stress of "making it" in the comedy industry that
-# is making comedians depressed, or whether their mental illness arose much
-# earlier in development.
+```{r, warning = FALSE, message = FALSE}
 
 cmi %>%
-  summary()
+  ggplot(aes(x = Depression)) + 
+  geom_histogram(binwidth = 2, color = "black", fill = "light blue") +
+  labs(title = "Histogram of Depression Inventory Scores Among Comedians",
+       x = "Depression Inventory Score",
+       y = "Number of Comedians",
+            subtitle = "Comedians Show Massively Increased Depression Scores Relative to General Population, With Control Median Being Less than 10")
+
+       
 ```
 
+#####For context, the bell curve for average depression inventory scores in control populations can be found here https://www.ncbi.nlm.nih.gov/pmc/articles/PMC34551/figure/F2/
+
+```{r, warning = FALSE, message = FALSE}
+#enjoyability of getting a laugh vs depression inventory scores among performers.
+cmi %>%
+  filter(Q17 < 4) %>%
+  ggplot(aes(x = Depression, y = Q16_1)) + 
+  geom_point() +
+  labs(title = "A Potential Mechanism for Increased Rates of Depression Among Comedians",
+       x = "Depression Inventory Score", 
+       y = "Enjoyability of Getting a Laugh Scored One Through Ten",
+       subtitle = "One would expect enjoyability ratings of an experience to go down as anhedonic depressive symptoms increase. However, as depressive symptoms increase, comedians continue to rate getting a laugh as being 'euphoric'")
+```
+
+
+```{r, eval = FALSE, warning = FALSE}
+#student
+cmi %>%
+  filter(Q17 < 4) %>%
+  filter(Q6 == 1) %>% 
+  filter(!is.na(Depression)) %>%
+  ggplot(aes(x = Depression)) + geom_histogram()
+
+
+
+#depression mean score among people who had a "moment"
+cmi %>%
+  filter(Q17 < 4) %>%
+  filter(Q20 == 1) %>% 
+  filter(!is.na(Depression)) %>%
+  summarize(mean_d = mean(Depression))
+
+
+# effect of comedy on people who do have depression.
+cmi %>%
+  filter(Depression > 20) %>%
+  group_by(Q15) %>%
+  count()
+  
+# effect of comedy on people who do not have depression.
+cmi %>%
+  filter(Depression < 20) %>%
+  group_by(Q15) %>%
+  count()
+
+
+# have you ever been diagnosed with depression?, 1 is yes 2 is no
+cmi%>%
+  filter(Q112 == 2) %>%
+#  filter(Depression > 20) %>%
+  ggplot(aes(x = Depression)) + geom_histogram()
+  
+
+# number of people diagnosed with depression. 
+  cmi %>%
+  filter(Q113_1 == 1) %>%
+  count()
+
+  ggplot(aes(x = Depression)) + geom_histogram()
+```
 
